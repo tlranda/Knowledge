@@ -1,0 +1,43 @@
+The "We're Working On It" (Developing) License:
+
+This is an open-source prototype library (the software), provided in whatever
+state it exists in when you observe it and/or this agreement.
+
+You may make your own partial or complete copies of the software and may openly
+distribute them under other more restrictive licenses, provided that any partial
+or complete redistribution is provided free of charge with a binding copy of
+this agreement.
+
+By using the software, you accept that it comes without any warranty of any
+kind. It is in development and prone to change. The software is not intentionally
+designed to cause any harm, but you accept and understand that misuse, bugs,
+exploitation and accidents all can and do happen; wherein you hold yourself
+responsible for any and all resulting damages and liabilities. The authors make
+NO GUARANTEES about the safety, reliability, or purpose of any extensions
+supported by the software. In no event will the authors or copyright holders be
+liable with respect to any connection to the software's distribution, operation,
+or any other interaction with the software.
+
+You ARE welcome to use the software as-is but accept that the author makes NO
+GUARANTEES about the function, purpose, or capabilities of the software in any
+regard under this agreement. You ARE welcome to PRIVATELY make your own
+modifications to the software for your personal use. Commerical uses are not
+advised, but are permitted within the commercial entity (the company) as long
+as the company agrees that internal use means the software is used by employees
+of the company (excluding any and all contractors and subcontractors) without
+interacting with customers in any capacity. The company may use the software
+through its employees to interact with customers in any fashion provided that
+they do not sell the software, to sell services that rely upon the software,
+and make their customers explicitly agree to this agreement as private
+individuals. All agreements must be made by humans; this software is NOT
+available for use by non-human actors, such as artificial intelligences (they
+don't need it anyways).
+
+This licensing agreement applies only to development versions of the software.
+All past revisions of the software under this agreement will remain governed by
+this agreement, however future revisions of the software may freely sever this
+agreement and replace it with another. You understand that this license permits
+your continued usage of this and previous versions of the software, but that
+agreement will not automatically extend to future revisions unless provisioned
+by the new licensing terms.
+
