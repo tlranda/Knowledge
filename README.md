@@ -50,6 +50,10 @@ so you always know what is recorded and can easily edit it yourself if needed
 
 ## How do I set up my knowledge?
 
+First, you'll need to ensure your installation of Python is >= version 3.10.
+PyKnowledge relies on various builtin modules, language features, and behaviors
+that are not present in earlier versions of Python.
+
 ### Static knowledge
 
 Static knowledge are located in JSON files (such as
