@@ -25,6 +25,7 @@ class KnowledgeLogger():
             return
 
         # Custom formatter to add to handles
+        logFile.parents[0].mkdir(parents=True, exist_ok=True)
         fileHandler = logging.FileHandler(logFile)
         consoleHandler = logging.StreamHandler()
         logFormat = logging.Formatter('[%(asctime)s] [%(name)s; %(levelname)s] %(filename)s:%(funcName)s() @ Line %(lineno)d: %(message)s')

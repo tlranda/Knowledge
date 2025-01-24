@@ -47,31 +47,7 @@ class Knowledge():
         self.logger.info('KnowledgeBase Ready')
 
         # Not-parsed arguments are expected to be a request of the knowledge base
-        votes, literal_votes, references = self.search_for_knowledge(not_parsed)
-        # Do some sorting based on votes (customizable)
-        voted_knowledge = self.rank_votes(votes, literal_votes, references)
-        # Execute the knowledge
-        if callable(voted_knowledge):
-            voted_knowledge(not_parsed)
-        else:
-            # Easter-egg / Tutorial
-            if tuple(not_parsed) == ('Show me a magic demo!',):
-                print("Thank you for using knowledge!")
-                if len(self.knowledge_base) == 0:
-                    print("It looks like your database doesn't have any "
-                          "knowledge set up yet, but you can start adding "
-                          "entries at "
-                          f"{self.knowledge_base['knowledge.sources']['global']} "
-                          "or develop Python tools within "
-                          f"{self.knowledge_base['knowledge.tools']['global']}")
-                else:
-                    print(f"Your database has {len(self.knowledge_base)} items!")
-                    print("You can add more knowledge at "
-                          f"{self.knowledge_base['knowledge.sources']['global']} "
-                          "or develop Python tools within "
-                          f"{self.knowledge_base['knowledge.tools']['global']}")
-                exit(0)
-            print(voted_knowledge)
+        self.knowledge_request(not_parsed)
 
     def __del__(self):
         # If --help is given, the logger is never created and NO messages are
@@ -144,6 +120,33 @@ class Knowledge():
         known_args.configuration[0] = pathlib.Path(known_args.configuration[0])
         return (known_args, unknown_args)
 
+    def knowledge_request(self, *args):
+        votes, literal_votes, references = self.search_for_knowledge(*args)
+        # Do some sorting based on votes (customizable)
+        voted_knowledge = self.rank_votes(votes, literal_votes, references)
+        # Execute the knowledge
+        if callable(voted_knowledge):
+            voted_knowledge(not_parsed)
+        else:
+            # Easter-egg / Tutorial
+            if (" ".join(*args),) == ('Show me a magic demo!',):
+                print("Thank you for using knowledge!")
+                if len(self.knowledge_base) == 0:
+                    print("It looks like your database doesn't have any "
+                          "knowledge set up yet, but you can start adding "
+                          "entries at "
+                          f"{self.knowledge_base['knowledge.sources']['global']} "
+                          "or develop Python tools within "
+                          f"{self.knowledge_base['knowledge.tools']['global']}")
+                else:
+                    print(f"Your database has {len(self.knowledge_base)} items!")
+                    print("You can add more knowledge at "
+                          f"{self.knowledge_base['knowledge.sources']['global']} "
+                          "or develop Python tools within "
+                          f"{self.knowledge_base['knowledge.tools']['global']}")
+                exit(0)
+            print(voted_knowledge)
+
     def search_for_knowledge(self,
                              query: List[str],
                              ) -> Tuple[Dict[int,float],Dict[object,float],Dict[int,object]]:
@@ -179,6 +182,8 @@ class Knowledge():
         """
         #best_voted = list(votes.keys())[0]
         #best_vote_is_literal = False
+        if len(literal_votes) == 0:
+            return None
         best_voted = list(literal_votes.keys())[0]
         best_vote_is_literal = True
         if best_vote_is_literal:

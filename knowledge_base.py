@@ -28,13 +28,20 @@ class KnowledgeBase():
                 self.logger.debug(f"{section}: {key} --> {value}")
 
         # Load components
-        with open(self.configuration['knowledge.sources']['global'], 'r') as f:
+        gk = pathlib.Path(self.configuration['knowledge.sources']['global'])
+        if not gk.exists():
+            with open(gk, 'w') as f:
+                f.write('{}')
+        with open(gk, 'r') as f:
             global_knowledge = json.load(f)
         class SampleWinner():
             def __str__(self):
                 return "Oooh I won? Nice"
         #self.components = [SampleWinner(), 'sample string','who knows','who cares']
-        self.components = [global_knowledge]
+        if len(global_knowledge) > 0:
+            self.components = [global_knowledge]
+        else:
+            self.components = []
         self.logger.info('KnowledgeBase initialized')
 
     def make_default_configuration(self,
