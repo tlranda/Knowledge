@@ -30,9 +30,11 @@ class KnowledgeBase():
         # Load components
         gk = pathlib.Path(self.configuration['knowledge.sources']['global'])
         if not gk.exists():
+            self.logger.info(f"Create new knowledge base at {self.configuration['knowledge.sources']['global']}")
             with open(gk, 'w') as f:
                 f.write('{}')
         with open(gk, 'r') as f:
+            self.logger.info(f"Load knowledge base at {self.configuration['knowledge.sources']['global']}")
             global_knowledge = json.load(f)
         class SampleWinner():
             def __str__(self):
@@ -42,7 +44,7 @@ class KnowledgeBase():
             self.components = [global_knowledge]
         else:
             self.components = []
-        self.logger.info('KnowledgeBase initialized')
+        self.logger.info(f'KnowledgeBase initialized with {len(self.components)} components')
 
     def make_default_configuration(self,
                                    config_path: pathlib.Path,

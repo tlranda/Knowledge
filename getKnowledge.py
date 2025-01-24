@@ -46,14 +46,26 @@ class Knowledge():
                                             self.logger)
         self.logger.info('KnowledgeBase Ready')
 
-        # Not-parsed arguments are expected to be a request of the knowledge base
-        self.knowledge_request(not_parsed)
+        if self.arguments.mode == 'query':
+            # Not-parsed arguments are expected to be a request of the knowledge base
+            self.logger.info(f"Query mode initiated with args: {not_parsed}")
+            self.knowledge_request(not_parsed)
+        elif self.arguments.mode == 'add':
+            self.logger.info(f"Add mode initiated with args: {not_parsed}")
+            print("Not implemented yet")
+        elif self.arguments.mode == 'edit':
+            self.logger.info(f"Edit mode initiated with args: {not_parsed}")
+            print("Not implemented yet")
 
     def __del__(self):
         # If --help is given, the logger is never created and NO messages are
         # logged. Otherwise, cleanly denote the end of the program execution
         if hasattr(self, 'logger'):
             self.logger.info('Knowledge shutting down...\n')
+        if hasattr(self, 'clear_logs') and self.clear_logs:
+            self.logger.info(f'Clearing logfile: {self.arguments.logfile}')
+            del self.logger
+            self.arguments.logfile.unlink()
 
     def build(self,
               existing_parser: Optional[argparse.ArgumentParser] = None,
@@ -72,6 +84,11 @@ class Knowledge():
         # Set as string so argparse displays it nicely, even though it will
         # display it as a list (we do not want argparse to try to call a
         # .extend() method on a string)
+        kl_args.add_argument("--mode", "-m",
+                             choices=['query','add','edit'],
+                             default='query',
+                             help="Interaction to perform with command line "
+                                  f"{default_help}")
         kl_args.add_argument("--configuration", "-c",
                              default=[str(pathlib.Path(os.environ['HOME']) /
                                       ".pyknowledge" /
@@ -101,6 +118,9 @@ class Knowledge():
         kl_args.add_argument("--vote-query", "-v",
                              action="store_true",
                              help=f"Show votes for knowledge query {default_help}")
+        kl_args.add_argument("--clear-logs",
+                             action="store_true",
+                             help=f"Delete log files on exit {default_help}")
         return existing_parser
 
     def parse(self,
@@ -118,6 +138,8 @@ class Knowledge():
             exit(0)
         # Fix string path of explicit argument 0 to be pathlib.Path again
         known_args.configuration[0] = pathlib.Path(known_args.configuration[0])
+        if known_args.clear_logs:
+            self.clear_logs = True
         return (known_args, unknown_args)
 
     def knowledge_request(self, *args):
