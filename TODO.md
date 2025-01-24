@@ -20,3 +20,5 @@ scoring and usage)
 * Provide an API for tools to load other tools to facilitate reuse that adheres
 to current environment
 
+Nice to have:
+* Query file sizes of indexed structures (logs, knowledge bases, configurations)
