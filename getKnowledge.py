@@ -177,16 +177,66 @@ class Knowledge():
             utilize by collecting votes across the knowledge base.
             Return the votes by mapping weakreferences to their votes
         """
+        query_keys = list()
+        max_score = 0
+        for qk in [bytearray(q, encoding='utf-8') for q in query]:
+            qkl = list()
+            if len(qk) < 2:
+                qkl.append(qk)
+                max_score += 1
+            for qka, qkb in zip(qk, qk[1:]):
+                qkc = bytearray([qka])
+                qkc.append(qkb)
+                qkl.append(qkc)
+                max_score += 1
+            query_keys.append(qkl)
+        self.logger.debug(f"Query chunked as series of bytearrays with maximum score {max_score}: {query_keys}")
         votes = dict()
         literal_votes = dict()
         references = weakref.WeakValueDictionary()
         for knowledge in self.knowledge_base:
             if type(knowledge) in [str, int, float]:
+                self.logger.debug(f"Scalar knowledge gets 1.0 vote: \"{knowledge}\"")
                 literal_votes[knowledge] = 1.0
             if type(knowledge) is dict:
-                for (k,v) in knowledge.items():
-                    literal_votes[v] = 3.0 # Should be voted on by k using query
+                self.logger.debug(f"Dict knowledge values get byte-array streaking vote:")
+                for (vote_key,v) in knowledge.items():
+                    if type(vote_key) is not str:
+                        vote_key = str(vote_key)
+                    streaks = list()
+                    for vote_subkey in vote_key.split(' '):
+                        vote_bkey = bytearray(vote_subkey, encoding='utf-8')
+                        # Each part of query votes over the vote-key
+                        substreaks = list()
+                        for qkey_list in query_keys:
+                            # Split into 2-bit sliding window
+                            vks = list()
+                            if len(vote_bkey) < 2:
+                                vks.append(vote_bkey)
+                            for vka, vkb in zip(vote_bkey, vote_bkey[1:]):
+                                vk = bytearray([vka])
+                                vk.append(vkb)
+                                vks.append(vk)
+                            #self.logger.debug("\t"+f"Compare {qkey_list} to {vks}")
+                            lstreak = 0
+                            for qk in qkey_list:
+                                if qk in vks:
+                                    lstreak += 1
+                                    continue
+                            substreaks.append(lstreak)
+                            #self.logger.debug("\t"+f"Substreaks: {substreaks}")
+                        streaks.append(substreaks)
+                        #self.logger.debug("\t"+f"Streaks: {streaks}")
+                    # We could normalize this by the length of the query key
+                    # (not target -- don't want to penalize not fully using a target)
+                    # but the score will simply be higher the more of the query
+                    # key you match; so it's not necessary to normalize this value
+                    # except for fairer comparisons with other scoring methods
+                    # This normalizes scores to [0,1] based on query saturation
+                    literal_votes[v] = sum(map(max,streaks)) / max_score
+                    self.logger.debug("\t"+f"Key \"{vote_key}\" receives score: {literal_votes[v]}")
             else:
+                self.logger.debug(f"Tool knowledge (callable, usually) gets 2.0 vote: {knowledge}")
                 references[id(knowledge)] = knowledge
                 votes[id(knowledge)] = 2.0
         return votes, literal_votes, references
@@ -202,16 +252,27 @@ class Knowledge():
             For non-literal votes, the weakreference indicated by the key should
             resolve to the appropriate object
         """
-        #best_voted = list(votes.keys())[0]
-        #best_vote_is_literal = False
-        if len(literal_votes) == 0:
-            return None
-        best_voted = list(literal_votes.keys())[0]
-        best_vote_is_literal = True
-        if best_vote_is_literal:
-            return best_voted
-        else:
-            return references[best_voted]
+        self.logger.debug(f"Rank votes based on:")
+        self.logger.debug("\t"+f"Votes: {votes}")
+        # Voting amongst votes
+        best_voted_score = 0
+        best_voted_key = None
+        self.logger.debug("\t\t"+f"Best voted: {best_voted_key} with score {best_voted_score}")
+        self.logger.debug("\t"+f"Literal Votes: {literal_votes}")
+        # Voting amongst literal votes
+        best_literal_score = max(literal_votes.values())
+        best_literal_key = list(literal_votes.keys())[list(literal_votes.values()).index(best_literal_score)]
+        self.logger.debug("\t\t"+f"Best literal: {best_literal_key} with score {best_literal_score}")
+        self.logger.debug("\t"+f"References: {references}")
+        # Voting amongst references
+        best_reference_score = 0
+        best_reference_key = None
+        self.logger.debug("\t\t"+f"Best reference: {best_reference_key} with score {best_reference_score}")
+
+        # Maximum vote
+        mscore = [best_voted_score, best_literal_score, best_reference_score]
+        mkey = [best_voted_key, best_literal_key, best_reference_key][mscore.index(max(mscore))]
+        return mkey
 
 if __name__ == '__main__':
     Knowledge()
