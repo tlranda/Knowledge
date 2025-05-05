@@ -167,7 +167,10 @@ class Knowledge():
                           "or develop Python tools within "
                           f"{self.knowledge_base['knowledge.tools']['global']}")
                 exit(0)
-            print(voted_knowledge)
+            elif isinstance(voted_knowledge, tuple):
+                print("\n".join(voted_knowledge))
+            else:
+                print(voted_knowledge)
 
     def search_for_knowledge(self,
                              query: List[str],
@@ -201,6 +204,8 @@ class Knowledge():
             if type(knowledge) is dict:
                 self.logger.debug(f"Dict knowledge values get byte-array streaking vote:")
                 for (vote_key,v) in knowledge.items():
+                    if isinstance(v, list):
+                        v = tuple(v)
                     if type(vote_key) is not str:
                         vote_key = str(vote_key)
                     streaks = list()
